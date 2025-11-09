@@ -1,0 +1,19 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: critical-workload-pdb
+  labels:
+    app: critical-workload
+    workload-tier: critical
+spec:
+  # Ensure 80% minimum availability for critical workloads
+  minAvailable: 80%
+  
+  selector:
+    matchLabels:
+      app: critical-workload
+      workload-tier: critical
+      
+  # Unhealthy pod eviction policy
+  unhealthyPodEvictionPolicy: AlwaysAllow
+---

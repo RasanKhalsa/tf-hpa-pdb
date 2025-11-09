@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: standard-workload
+  labels:
+    app: standard-workload
+    workload-tier: standard
+    sla: standard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: standard-workload
+  template:
+    metadata:
+      labels:
+        app: standard-workload
+        workload-tier: standard
+        sla: standard
+    spec:
+      # Node selection for standard NodePool
+      nodeSelector:
+        workload-tier: standard
+        
+      # Tolerations to match standard NodePool taints
+      tolerations:
+        - key: workload-tier
+          operator: Equal
+          value: standard
+          effect: NoSchedule
+          
+      # Topology spread constraints for basic availability
+      topologySpreadConstraints:
+        - maxSkew: 2
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: standard-workload
+              
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+              name: http
+              
+          # Burstable resources for standard workload
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+            
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+            
+          # Environment variables for identification
+          env:
+            - name: WORKLOAD_TIER
+              value: "standard"
+            - name: SLA_LEVEL
+              value: "normal"
+              
+      # Standard restart policy
+      restartPolicy: Always
+      
+      # DNS policy
+      dnsPolicy: ClusterFirst
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: standard-workload-service
+  labels:
+    app: standard-workload
+    workload-tier: standard
+spec:
+  selector:
+    app: standard-workload
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+---

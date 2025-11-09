@@ -1,0 +1,19 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: standard-workload-pdb
+  labels:
+    app: standard-workload
+    workload-tier: standard
+spec:
+  # Ensure 50% minimum availability for standard workloads
+  minAvailable: 50%
+  
+  selector:
+    matchLabels:
+      app: standard-workload
+      workload-tier: standard
+      
+  # Unhealthy pod eviction policy
+  unhealthyPodEvictionPolicy: AlwaysAllow
+---

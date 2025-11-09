@@ -1,0 +1,12 @@
+# Example Terraform variables file
+# Copy this to terraform.tfvars and update with your values
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# EKS Cluster Configuration
+cluster_name = "karpenter-eks-cluster"
+
+# Metrics Server Configuration
+metrics_server_version = "3.11.0"
+

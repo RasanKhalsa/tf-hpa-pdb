@@ -1,0 +1,36 @@
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: standard-nodeclass
+  labels:
+    workload-tier: standard
+spec:
+  # AMI family for EKS 1.32 (required in v1)
+  amiFamily: AL2
+  
+  # AMI selection terms (required in v1) - EKS 1.32 specific
+  amiSelectorTerms:
+    - name: "amazon-eks-node-1.32-*"
+  
+  # Instance profile for node permissions (required in v1)
+  role: "KarpenterNodeInstanceProfile-karpenter-eks-cluster"
+  
+  # Subnet selection - replace with your cluster name
+  # Only use private subnets with NAT gateway access
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "karpenter-eks-cluster"
+        kubernetes.io/role/internal-elb: "1"
+        
+  # Security group selection - replace with your cluster name
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "karpenter-eks-cluster"
+        
+  # Tags for cost allocation and management
+  tags:
+    WorkloadTier: "Standard"
+    Environment: "Testing"
+    ManagedBy: "Karpenter"
+    Project: "Karpenter-Workload-Testing"
+---

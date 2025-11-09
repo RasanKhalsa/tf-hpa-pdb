@@ -1,0 +1,42 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: critical-nodepool
+  labels:
+    workload-tier: critical
+spec:
+  template:
+    metadata:
+      labels:
+        workload-tier: critical
+        node-type: premium
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values: ["c5.large", "c5.xlarge", "m5.large", "m5.xlarge", "c5n.large", "c5n.xlarge"]
+        - key: kubernetes.io/os
+          operator: In
+          values: ["linux"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: critical-nodeclass
+      taints:
+        - key: workload-tier
+          value: critical
+          effect: NoSchedule
+      expireAfter: 24h
+  limits:
+    cpu: 1000
+    memory: 1000Gi
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
+---
