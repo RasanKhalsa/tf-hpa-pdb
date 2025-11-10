@@ -52,6 +52,7 @@ karpenter.sh/discovery: "YOUR_CLUSTER_NAME"
 ```
 .
 ├── README.md                    # This documentation
+├── terraform                    # Terraform code for setting up Metric server
 ├── critical-nodepool.yaml       # Critical workload NodePool
 ├── standard-nodepool.yaml       # Standard workload NodePool
 ├── critical-nodeclass.yaml      # Critical workload EC2NodeClass
